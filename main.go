@@ -9,6 +9,10 @@ import (
 
 func main() {
 	mux := http.NewServeMux()
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: mux,
+	}
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
@@ -20,5 +24,5 @@ func main() {
 	mux.HandleFunc("/games", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Welcome to the Game List")
 	})
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	log.Fatal(server.ListenAndServe())
 }
