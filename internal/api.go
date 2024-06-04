@@ -4,4 +4,8 @@ type Server struct {
 	addr string
 }
 
-func NewAPIServer(addr string) (*Server, error) {
+func NewServer(addr string) *Server {
+	return &Server{
+		addr: addr,
+	}
+}

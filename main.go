@@ -8,17 +8,17 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/foo", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
-	})
+	mux := http.NewServeMux()
 
-	http.HandleFunc("/bar", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+		fmt.Fprintf(w, "You've made it to %q, also known as Homepage", html.EscapeString(r.URL.Path))
 	})
-
-	http.HandleFunc("/shitter", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Welcome, you damn shitter", html.EscapeString(r.URL.Path))
+	mux.HandleFunc("/games", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "Welcome to the Game List")
 	})
-
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
