@@ -1,3 +1,3 @@
-module github.com/Itsbiggs/SteamLibrary
+module github.com/Itsbiggs/SteamLibraryAPI
 
 go 1.22.3
