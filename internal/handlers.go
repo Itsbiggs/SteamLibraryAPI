@@ -16,7 +16,7 @@ type Game struct {
 	Hours    int    `json:"hours"`
 }
 
-var games = []Game{}
+var games = make(map[string]Game)
 
 // handle request to home page, this eventually will do something besides print a statement, TODO
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
@@ -40,12 +40,10 @@ func GetGameHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ID is required", http.StatusBadRequest)
 		return
 	}
-	for _, game := range games {
-		if game.ID == id {
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(game)
-			return
-		}
+	if game, ok := games[id]; ok {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(game)
+		return
 	}
 	http.Error(w, "Game not found, are you sure you added it?", http.StatusNotFound)
 }
@@ -61,8 +59,8 @@ func CreateGamesHandler(w http.ResponseWriter, r *http.Request) {
 	if game.Owned {
 		game.Wishlist = false
 	}
-	//append the added game to Games
-	games = append(games, game)
+	//add the game to the map by ID
+	games[game.ID] = game
 	//report success and encode data
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
