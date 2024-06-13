@@ -27,7 +27,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "You've made it to %q, also known as Homepage", html.EscapeString(r.URL.Path))
 }
 func GetGamesHandler(w http.ResponseWriter, r *http.Request) {
-	//since we are saving to memory we're just going to pull the list, we will need to pull from a DB when implemented, but in this case we're just pulling from the list.
+	//since we are saving to memory we're just going to pull the list, we will need to pull from a DB when implemented.
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(games)
 }
@@ -37,7 +37,7 @@ func GetGameHandler(w http.ResponseWriter, r *http.Request) {
 	//extract ID from query parameters
 	id := r.URL.Query().Get("id")
 	if id == "" {
-		http.Error(w, "ID is required", http.StatusBadRequest)
+		http.Error(w, "ID is required to get game", http.StatusBadRequest)
 		return
 	}
 	if game, ok := games[id]; ok {
@@ -59,10 +59,35 @@ func CreateGamesHandler(w http.ResponseWriter, r *http.Request) {
 	if game.Owned {
 		game.Wishlist = false
 	}
+	if game.Wishlist {
+		game.Played = false
+		game.Hours = 0
+	}
 	//add the game to the map by ID
 	games[game.ID] = game
-	//report success and encode data
+	//report success and encode data to json for consumption
 	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(game)
+}
+
+func UpdateGameHandler(w http.ResponseWriter, r *http.Request) {
+	//catch error of no ID given
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "ID is required to update", http.StatusBadRequest)
+		return
+	}
+	//catch error of a bad request
+	var game Game
+	if err := json.NewDecoder(r.Body).Decode(&game); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if game.Owned {
+		game.Wishlist = false
+	}
+	games[id] = game
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(game)
 }
