@@ -89,5 +89,27 @@ func UpdateGameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	games[id] = game
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	response := map[string]string{"message": "Game updated successfully"}
+	json.NewEncoder(w).Encode(response)
 	json.NewEncoder(w).Encode(game)
+}
+
+func DeleteGameHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "ID is required to delete", http.StatusBadRequest)
+		return
+	}
+	var game Game
+	if err := json.NewDecoder(r.Body).Decode(&game); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	delete(games, id)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	response := map[string]string{"message": "Game successfully deleted"}
+	json.NewEncoder(w).Encode(response)
 }

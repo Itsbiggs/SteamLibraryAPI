@@ -17,6 +17,7 @@ func InitApi() {
 	mux.HandleFunc("GET /game", GetGameHandler)
 	mux.HandleFunc("POST /games", CreateGamesHandler)
 	mux.HandleFunc("POST /game", UpdateGameHandler)
+	mux.HandleFunc("DELETE /game", DeleteGameHandler)
 
 	log.Fatal(server.ListenAndServe())
 }
